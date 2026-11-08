@@ -2,7 +2,7 @@
 
 Date: 2026-11-08. Chain: Base (8453).
 
-**Status: both contracts deployed and the router proof succeeded. Basescan verification is incomplete.** Sourcify has both contracts. Basescan accepted the submissions, but they stayed "Pending in queue" for more than 10 minutes and it publishes no source for either contract yet.
+**Status: both contracts deployed, verified on Sourcify and Basescan, and the router proof succeeded.** The hook has not been exercised on a live pool.
 
 ## Addresses
 
@@ -66,25 +66,22 @@ Values below are raw USDC units (6 decimals), read from the transaction's USDC `
 
 | Contract | Sourcify | Basescan |
 |---|---|---|
-| Router | `match` on creation and runtime | **Not verified**: "Pending in queue", no source published |
-| Hook | `match` on runtime; creation match is null | **Not verified**: "Pending in queue", no source published |
+| Router | `match` on creation and runtime | Source published, solc 0.8.26 |
+| Hook | `match` on runtime; creation match is null | Source published, solc 0.8.26 |
 
-Forge timed out waiting on Basescan after two submissions per contract. A further 10 minutes of polling `getsourcecode` still returned no source. No error about the source or compiler settings was returned. To retry:
-
-```
-ARGS=$(cast abi-encode 'constructor(address,address)' 0x498581fF718922c3f8e6A244956aF099B2652b2b 0x4B1d57EBFaBDF3F21F30f210a1d95f649E9edD4c)
-forge verify-contract 0x8cfb5eBa99170d284120B885A47b08E28FD27379 src/SwapAndSprayRouter.sol:SwapAndSprayRouter --chain 8453 --constructor-args "$ARGS" --verifier etherscan --etherscan-api-key "$BASESCAN_API_KEY" --watch
-forge verify-contract 0xD5a632a1F24231847f3C0Be6ADEcf209c1830044 src/SwapAndSprayHook.sol:SwapAndSprayHook --chain 8453 --constructor-args "$ARGS" --verifier etherscan --etherscan-api-key "$BASESCAN_API_KEY" --watch
-```
+The first Basescan submissions stayed "Pending in queue" for more than 10 minutes. A later retry published the source for both contracts.
 
 ## Deviations and findings
 
 1. **Proof swap gas limit.** A rehearsal on a local Base fork reverted with Spray's "Insufficient gas" at forge's default limit (357,871), although the swap used about 259,000. Spray needs 150,000 gas remaining before each transfer, as `GAS.md` documents. The mainnet proof used `--gas-estimate-multiplier 300` (limit 825,756). No mainnet transaction failed.
-2. **Hook not exercised on mainnet.** It is deployed but no pool attaches it, so only its deployment, wiring and address flags are proven here. The brief requires asking before seeding a hook pool.
+2. **Hook not exercised on mainnet.** It is deployed but no pool attaches it, so only its deployment, wiring and address flags are proven here.
 3. **Sourcify hook creation match is null.** The runtime bytecode matches. The hook was created through the CREATE2 deployer.
 4. **Added `script/RouterProof.s.sol`** for the proof. It was not in Phase 1. It sets the minimum output 3% below the Chainlink feed.
 5. **Key handling.** The deploy scripts read `DEPLOYER_PRIVATE_KEY`, which was set per process from `SWAPSPRAY_DUST_KEY`.
 6. **Rehearsal.** Both deploys and the proof ran on a local Anvil fork first. Those artifacts were kept out of `broadcast/`, so the `broadcast/*/8453` runs are the mainnet transactions.
-7. **`README.md` is now out of date.** It still says "not deployed" and has no addresses for these contracts. It was left unchanged.
 
 Nothing else deviated from Phase 0: the PoolManager, SprayContract address, `feeBps` of 30 and the unpaused state were all confirmed on-chain immediately before use.
+
+## Follow-ups
+
+- **Seed a hook pool and run a live hook proof.** Deliberately not done in this phase. Until then, the hook's end-to-end behaviour is proven only on a Base fork.

@@ -4,7 +4,32 @@
 
 SwapAndSpray delivers a Uniswap v4 swap's output to up to 200 recipients atomically through Spraay's batch contract on Base. There is no intermediate balance in the payer's wallet and no second transaction.
 
-**Status: not deployed.** Tests run against a Base fork. No addresses exist for these contracts yet.
+## Deployments
+
+Base mainnet (chain ID 8453):
+
+| Contract | Address | Source |
+|---|---|---|
+| SwapAndSprayRouter | `0x8cfb5eBa99170d284120B885A47b08E28FD27379` | [Sourcify](https://repo.sourcify.dev/8453/0x8cfb5eBa99170d284120B885A47b08E28FD27379) |
+| SwapAndSprayHook | `0xD5a632a1F24231847f3C0Be6ADEcf209c1830044` | [Sourcify](https://repo.sourcify.dev/8453/0xD5a632a1F24231847f3C0Be6ADEcf209c1830044) |
+| SprayContract v2 | `0x4B1d57EBFaBDF3F21F30f210a1d95f649E9edD4c` | Existing Spraay contract |
+| Uniswap v4 PoolManager | `0x498581fF718922c3f8e6A244956aF099B2652b2b` | Existing Uniswap contract |
+
+**The hook is deployed but has not yet been exercised on a live pool.** No pool attaches it so far. Its address flags and constructor wiring are confirmed on-chain, and it is tested on a Base fork.
+
+### Router proof
+
+[`0x2d8a7acacf554cc353c14ad9cca8a86e8fbf4ef0416b2cb5ab6f6cc0313bd3ef`](https://basescan.org/tx/0x2d8a7acacf554cc353c14ad9cca8a86e8fbf4ef0416b2cb5ab6f6cc0313bd3ef) swapped 0.000094 ETH (about $0.20) on the hookless ETH/USDC 0.30% pool and paid the output in SHARES mode, 50/30/20, to three keyless addresses. Amounts are raw USDC units (6 decimals).
+
+| Party | Address | USDC received |
+|---|---|---|
+| Recipient 1 | `0x478e50965525Ebf9E8e820F7222197a00395298a` | 99,621 |
+| Recipient 2 | `0x2cF9A2b297FB4aFa5E48ca0645748927e11fBf12` | 59,772 |
+| Recipient 3 | `0xab4348Ca57fdA0441e4CCFB723dbC9c0dC23F2CC` | 39,849 |
+| Spray fee recipient (30 bps of 199,242, rounded down) | `0x033d3ce3BFd69B1d180869308822075219e771b5` | 597 |
+| **Pool output** | | **199,839** |
+
+Full details are in [DEPLOY-REPORT.md](DEPLOY-REPORT.md).
 
 ## Two entry points
 
@@ -65,9 +90,11 @@ Spraay's owner can pause the contract or raise the fee to at most 5%. While it i
 
 Fee-on-transfer, rebasing and callback tokens are not supported by Spraay.
 
-## Gas
+## Gas limits for callers
 
-Spray requires 150,000 gas to remain before every transfer, so set the gas limit with `eth_estimateGas` rather than from gas used. Measurements are in [GAS.md](GAS.md).
+**Call the router with a gas limit from `eth_estimateGas` plus a buffer of at least 20%.** Spray requires about 150,000 gas to remain before every transfer, so a tight limit reverts late with "Insufficient gas", even when the limit is above the gas the call would use.
+
+The mainnet proof used 259,061 gas under a 3× limit of 825,756. For that same call, a 275,000 limit reverts and `eth_estimateGas` returns 396,878. Measurements are in [GAS.md](GAS.md).
 
 ## Base addresses used
 

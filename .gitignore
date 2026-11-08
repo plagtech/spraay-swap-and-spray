@@ -2,3 +2,5 @@ out/
 cache/
 broadcast/
 .env
+CLAUDE-CODE-BRIEF-swap-and-spray.md
+PHASE0-RECON-swap-and-spray.md
