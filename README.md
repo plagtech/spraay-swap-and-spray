@@ -2,7 +2,7 @@
 
 *A hook that makes a swap pay a list of people instead of one wallet.*
 
-SwapAndSpray delivers a Uniswap v4 swap's output to up to 200 recipients atomically through Spraay's batch contract on Base. There is no intermediate balance in the payer's wallet and no second transaction.
+SwapAndSpray delivers a Uniswap v4 swap's output to up to 200 recipients in one transaction through Spraay's batch contract on Base. There is no intermediate balance in the payer's wallet and no second transaction.
 
 ## Deployments
 
