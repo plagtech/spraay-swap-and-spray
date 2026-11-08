@@ -4,6 +4,18 @@
 
 SwapAndSpray delivers a Uniswap v4 swap's output to up to 200 recipients in one transaction through Spraay's batch contract on Base. There is no intermediate balance in the payer's wallet and no second transaction.
 
+## How this differs from BatchDistributeHook
+
+| | BatchDistributeHook (v2, 0x2aB8…1010) | SwapAndSprayHook (0xD5a6…0044) |
+|---|---|---|
+| Who calls it | Pool operator / launchpad | The swapper |
+| When | After the fact — a standalone call | Inside the swap, in afterSwap |
+| What it does | Pushes tokens the caller already holds to up to 200 recipients | Takes the swap's output and pays up to 200 recipients before it reaches the swapper |
+| Callbacks | afterInitialize (registers the pool) + afterDonate (emits an event); no return delta | afterSwap + afterSwapReturnDelta |
+| Needs a pool with the hook | Yes, the pool must be initialized with it, but swaps on that pool are unaffected | Yes (or use SwapAndSprayRouter on any pool) |
+
+Both settle through the same SprayContract; they solve different problems and are submitted separately to the Uniswap hooklist (see [BatchDistributeHook](https://github.com/plagtech/spraay-uniswap-v4-hook)).
+
 ## Deployments
 
 Base mainnet (chain ID 8453):
@@ -52,10 +64,6 @@ Both contracts have no owner, no admin functions, no storage and no fee of their
 - **A router's own minimum-output check sees 0.** Set it to 0 and put your real minimum in `spec.minOutput`.
 
 Empty `hookData` passes a swap through unchanged.
-
-## How this differs from BatchDistributeHook
-
-[BatchDistributeHook](https://github.com/plagtech/spraay-uniswap-v4-hook) is a standalone utility: an operator funds and calls a distribution function, with a pool used for attribution. SwapAndSprayHook is a callback hook: it uses `afterSwap` with a return delta, so the swap's own output funds the payout.
 
 ## Payout spec
 
