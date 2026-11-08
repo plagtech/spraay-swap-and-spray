@@ -80,7 +80,7 @@ Spray requires 150,000 gas to remain before every transfer, so set the gas limit
 ## Develop
 
 ```
-git clone --recurse-submodules <this repository>
+git submodule update --init --recursive
 forge test
 forge test --fork-url https://mainnet.base.org --isolate
 ```

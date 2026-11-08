@@ -58,14 +58,14 @@ It is measured for USDC. Other cases can cost more:
 ## Reproduce
 
 ```
-forge test --fork-url https://mainnet.base.org --fork-block-number <recent block> --isolate -vv --match-path "test/fork/*"
+forge test --fork-url https://mainnet.base.org --isolate -vv --match-path "test/fork/*"
 ```
 
 Receipts, against a local fork only:
 
 ```
 anvil --fork-url https://mainnet.base.org --chain-id 31337 --port 8547
-RECIPIENTS=200 forge script script/LocalGasCheck.s.sol --rpc-url http://127.0.0.1:8547 --private-key <anvil test key> --broadcast
+RECIPIENTS=200 forge script script/LocalGasCheck.s.sol --rpc-url http://127.0.0.1:8547 --private-key "$ANVIL_TEST_KEY" --broadcast
 ```
 
-`LocalGasCheck` refuses to run on any chain ID other than 31337.
+Set `ANVIL_TEST_KEY` to one of the test keys Anvil prints at startup. `LocalGasCheck` refuses to run on any chain ID other than 31337.
