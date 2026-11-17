@@ -14,11 +14,11 @@ SwapAndSpray delivers a Uniswap v4 swap's output to up to 200 recipients in one 
 | Callbacks | afterInitialize (registers the pool) + afterDonate (emits an event); no return delta | afterSwap + afterSwapReturnDelta |
 | Needs a pool with the hook | Yes, the pool must be initialized with it, but swaps on that pool are unaffected | Yes (or use SwapAndSprayRouter on any pool) |
 
-Both settle through the same SprayContract; they solve different problems and are submitted separately to the Uniswap hooklist (see [BatchDistributeHook](https://github.com/plagtech/spraay-uniswap-v4-hook)).
+Both settle through the same SprayContract; they solve different problems and are listed separately in the Uniswap hooklist: [BatchDistributeHook](https://github.com/Uniswap/hooklist/blob/main/hooks/base/0x2ab86a34661c0629c62a0f1980c96d41ea471010.json) ([source](https://github.com/plagtech/spraay-uniswap-v4-hook)) and [SwapAndSprayHook](https://github.com/Uniswap/hooklist/blob/main/hooks/base/0xd5a632a1f24231847f3c0be6adecf209c1830044.json).
 
 ## Deployments
 
-Base mainnet (chain ID 8453):
+Base mainnet (chain ID 8453). SwapAndSprayHook is [listed in the official Uniswap hooklist](https://github.com/Uniswap/hooklist/blob/main/hooks/base/0xd5a632a1f24231847f3c0be6adecf209c1830044.json).
 
 | Contract | Address | Source |
 |---|---|---|
